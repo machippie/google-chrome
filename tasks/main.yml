@@ -6,12 +6,6 @@
   tags:
     - google-chrome
 
-- name: Install psutil package
-  pip:
-    name: psutil
-  tags:
-    - google-chrome
-
 - become: "{{ (google_chrome_user != ansible_user_id) | bool }}"
   become_user: "{{ google_chrome_user }}"
   block:
@@ -34,16 +28,24 @@
       tags:
         - google-chrome
 
+    - name: Install pidof package
+      homebrew:
+        name: pidof
+      tags:
+        - google-chrome
+
     - name: Check program running
       register: google_chrome_running
-      pids:
-        name: Google Chrome
+      check_mode: False
+      failed_when: False
+      changed_when: google_chrome_running.stdout | length > 0 | bool
+      command: pidof Google\ Chrome
       tags:
         - google-chrome
 
     - name: Fact program running
       set_fact:
-        google_chrome_started: "{{ google_chrome_running.pids | length > 0 }}}"
+        google_chrome_started: "{{ google_chrome_running.stdout_lines | length > 0 | bool }}"
       tags:
         - google-chrome
 

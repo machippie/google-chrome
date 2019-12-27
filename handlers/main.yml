@@ -1,0 +1,16 @@
+# Standards: 0.1
+---
+- name: Kill google-chrome
+  command: killall Google\ Chrome
+  register: google_chrome_kill
+  failed_when: google_chrome_kill.rc != 0 and "No matching processes belonging to you were found" not in google_chrome_kill.stderr
+  become: "{{ (google_chrome_user != ansible_user_id) | bool }}"
+  become_user: "{{ google_chrome_user }}"
+
+- name: Start google-chrome
+  when: google_chrome_started
+  command: open -j /Applications/Google\ Chrome.app
+  become: "{{ (google_chrome_user != ansible_user_id) | bool }}"
+  become_user: "{{ google_chrome_user }}"
+
+...
